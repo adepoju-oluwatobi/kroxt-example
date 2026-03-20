@@ -11,5 +11,22 @@ export const auth = createAuth({
   session: {
     expires: "15m",
     refreshExpires: "7d"
+  },
+  jwt: {
+    /**
+     * Use the new Kroxt feature to include other user fields in the JWT.
+     * We only add extra details to 'access' tokens to keep 'refresh' tokens light.
+     */
+    payload: (user, type) => {
+      if (type === "access") {
+        return {
+          schoolId: user.schoolId,
+          role: user.role,
+          age: user.age,
+          gender: user.gender
+        };
+      }
+      return {};
+    }
   }
 });

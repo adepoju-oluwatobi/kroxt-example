@@ -7,10 +7,10 @@ export class AuthController {
     try {
       const { name, email, password, ...extraFields } = req.body;
       const result = await authService.signup({ name, email, ...extraFields }, password);
-      
+
       // Set secure cookies
       res.cookie("refresh_token", result.refreshToken, { httpOnly: true, secure: true, sameSite: "strict" });
-      
+
       res.status(201).json({
         message: "User registered successfully",
         user: result.user,
@@ -25,9 +25,9 @@ export class AuthController {
     try {
       const { email, password } = req.body;
       const result = await authService.login(email, password);
-      
+
       res.cookie("refresh_token", result.refreshToken, { httpOnly: true, secure: true, sameSite: "strict" });
-      
+
       res.json({
         message: "Login successful",
         user: result.user,
@@ -57,6 +57,8 @@ export class AuthController {
 
       const payload = await authService.verifyToken(token, "access");
       if (!payload) throw new Error("Invalid or expired access token");
+
+      console.log("Decoded JWT Payload:", payload);
 
       const user = await mongoAdapter.findUserById(payload.sub as string);
       if (!user) throw new Error("User not found");

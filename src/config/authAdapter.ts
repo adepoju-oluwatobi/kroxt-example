@@ -22,8 +22,10 @@ export const mongoAdapter: AuthAdapter = {
     return { ...obj, id: obj._id.toString() };
   },
 
-  async linkOAuthAccount(user: any, provider: string, providerId: string) {
-    // Implement OAuth linking logic if needed
-    throw new Error("OAuth not implemented in this example");
+  async linkOAuthAccount(userId: string, provider: string, providerId: string) {
+    await User.findByIdAndUpdate(userId, {
+      oauthProvider: provider,
+      oauthId: providerId
+    });
   }
 };
