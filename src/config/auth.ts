@@ -1,11 +1,14 @@
 import { createAuth } from "kroxt";
-import { mongoAdapter } from "./authAdapter.js";
+import { createMongoAdapter } from "kroxt/adapters/mongoose";
+import { User } from "../models/user.model.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 
+export const authAdapter = createMongoAdapter(User);
+
 export const auth = createAuth({
-  adapter: mongoAdapter,
+  adapter: authAdapter,
   secret: process.env.JWT_SECRET || "fallback-secret-for-dev",
   pepper: process.env.JWT_PEPPER || "",
   session: {

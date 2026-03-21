@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { authService } from "../services/auth.service.js";
-import { mongoAdapter } from "../config/authAdapter.js";
+import { authAdapter } from "../config/auth.js";
 
 export class AuthController {
   async register(req: Request, res: Response) {
@@ -60,7 +60,7 @@ export class AuthController {
 
       console.log("Decoded JWT Payload:", payload);
 
-      const user = await mongoAdapter.findUserById(payload.sub as string);
+      const user = await authAdapter.findUserById(payload.sub as string);
       if (!user) throw new Error("User not found");
 
       res.json({ user });
