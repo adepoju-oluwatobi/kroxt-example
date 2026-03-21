@@ -1,11 +1,32 @@
 import { createAuth } from "kroxt";
 import { createMongoAdapter } from "kroxt/adapters/mongoose";
+import { createDrizzleAdapter } from "kroxt/adapters/drizzle";
+import { createPrismaAdapter } from "kroxt/adapters/prisma";
 import { User } from "../models/user.model.js";
+import { db, prisma, users } from "../db/index.js";
+import { eq } from "drizzle-orm";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-export const authAdapter = createMongoAdapter(User);
+const DB_TYPE = process.env.DB_TYPE || "mongodb";
+
+function getAdapter() {
+  switch (DB_TYPE) {
+    case "drizzle":
+      console.log("Using Drizzle (SQLite) Adapter");
+      return createDrizzleAdapter(db, users, eq);
+    case "prisma":
+      console.log("Using Prisma (SQLite) Adapter");
+      return createPrismaAdapter(prisma.user);
+    case "mongodb":
+    default:
+      console.log("Using Mongoose (MongoDB) Adapter");
+      return createMongoAdapter(User);
+  }
+}
+
+export const authAdapter = getAdapter();
 
 export const auth = createAuth({
   adapter: authAdapter,
@@ -16,10 +37,6 @@ export const auth = createAuth({
     refreshExpires: "7d"
   },
   jwt: {
-    /**
-     * Use the new Kroxt feature to include other user fields in the JWT.
-     * We only add extra details to 'access' tokens to keep 'refresh' tokens light.
-     */
     payload: (user, type) => {
       if (type === "access") {
         return {
